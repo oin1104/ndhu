@@ -6,6 +6,9 @@
 
 #define mapy 10
 
+
+//ㄚㄚㄚㄚ阿 ㄚㄚㄚㄚㄚㄚㄚㄚ ㄚㄚㄚ哀哀阿˙˙ 啊 啊 阿
+
 int map[mapx][mapy] = {  
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
   { 0, 0, 0, 1, 1, 0, 1, 1, 0, 1 },
@@ -13,25 +16,22 @@ int map[mapx][mapy] = {
   { 1, 0, 0, 0, 0, 1, 0, 1, 0, 1 },
   { 1, 1, 1, 0, 1, 1, 0, 1, 1, 1 },
   { 1, 0, 1, 1, 1, 0, 0, 1, 0, 1 },
-  { 1, 0, 0, 0, 0, 0, 1, 1, 0, 0 },
-  { 1, 0, 1, 1, 1, 1, 1, 0, 0, 1 },
-  { 1, 0, 0, 0, 0, 0, 0, 0, 1, 1 },
+  { 0, 0, 0, 0, 0, 0, 1, 1, 0, 0 },
+  { 0, 0, 1, 0, 1, 0, 1, 0, 0, 1 },
+  { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 },
   { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
 };
 
 int stack[1000][2] = {};
 int top = -1;
 
-int footage[1000][2] = {};
-int ftop = -1;
-
 int out = 0;
 
 int fake[mapx][mapy];
 int step[mapx][mapy];
 
-int ansx;
-int ansy;
+int ansi=-1;
+int ansj=-1;
 
 void find()
 {   
@@ -39,55 +39,57 @@ void find()
     int x = 0 ;
     int y = 0 ;
 
-    if(x == ansx && y == ansy)out = 1;
-
-
-
     x = stack[top][0];
     y = stack[top][1];
+    
+    if(x == ansi && y == ansj)out = 1;
+    
     top--;
 
     if((x-1) >= 0) 
     {
         if(fake[x-1][y] == 0)
         {
-            fake[x-1][y] = 2;
+            fake[x-1][y] = 8;
+            top++;
             stack[top][0] = x-1 ;
             stack[top][1] = y ;
-            top++;
         }
     }
     if((x+1) < mapx) 
     {
         if(fake[x+1][y] == 0)
         {
-            fake[x+1][y] = 4;
+            fake[x+1][y] = 2;
+            top++;
             stack[top][0] = x+1 ;
             stack[top][1] = y ;
-            top++;
+
         }
     }
     if((y+1) < mapy) 
     {
         if(fake[x][y+1] == 0)
         {
-            fake[x][y+1] = 1;
-            stack[top][0] = x ;
-            stack[top][1] = y-1 ;
+            fake[x][y+1] = 6;
             top++;
+            stack[top][0] = x ;
+            stack[top][1] = y+1 ;
+
         }
     }
     if((y-1) >= 0) 
     {
         if(fake[x][y-1] == 0)
         {
-            fake[x][y-1] = 3;
-            stack[top][0] = x ;
-            stack[top][1] = y+1 ;
+            fake[x][y-1] = 4;
             top++;
+            stack[top][0] = x ;
+            stack[top][1] = y-1 ;
+
         }
     }
-
+    return;
 }
 
 void check(int i , int j)
@@ -102,8 +104,9 @@ void check(int i , int j)
         fake[i][j] = -1;
         while(top != -1)
         {
-            find();
+            find(); 
         }
+        return;
     }
 }
 
@@ -111,33 +114,39 @@ void printstep(int ansx , int ansy,int qx , int qy)
 {
     int gx = ansx;
     int gy = ansy;
+    step[gx][gy] = 2;
 
-    while((gx!=qx)&&(gy!=qy))
+    while( (gx!=qx) || (gy!=qy ) )
     {
-        step[gx][gy] = 2;
-        if(fake[gx][gy] == 1)
+        
+        if(fake[gx][gy] == 6)
         {
             gx = gx;
             gy = gy-1;
+            step[gx][gy] = 2;
         }
-        else if(fake[gx][gy] == 2)
+        else if(fake[gx][gy] == 8)
         {
             gx = gx+1;
             gy = gy;
-        }
-        else if(fake[gx][gy] == 3)
-        {
-            gx = gx;
-            gy = gy+1;
+            step[gx][gy] = 2;
         }
         else if(fake[gx][gy] == 4)
         {
+            gx = gx;
+            gy = gy+1;
+            step[gx][gy] = 2;
+        }
+        else if(fake[gx][gy] == 2)
+        {
             gx = gx-1;
             gy = gy;
+            step[gx][gy] = 2;
         }
 
     }
-    step[gx][gy] = 2;
+    
+    step[qx][qy] = 2;
 
     for(int i = 0 ; i < mapx ; i++)
     {
@@ -159,26 +168,33 @@ int main(void)
     memcpy(fake,map,sizeof(map));
     memcpy(step,map,sizeof(map));
     
-    ansx = 6;
-    ansy = 9;
+    ansi = 6;
+    ansj = 9;
 
-    int qx = 1;
-    int qy = 0;
+    int qi = 1;
+    int qj = 0;
 
-    check(qx, qy);
+    check(qi, qj);
+    
     if(out == 1)
     {
-        printstep(ansx , ansy,qx,qy);
-        printf("yes");
+        printstep(ansi , ansj,qi,qj);
+        printf("yes\n");
     }
-    if(out != 1)
+    else if(out != 1)
     {
-        printf("no");
+        printf("no\n");
     }
+    for(int i = 0 ; i < mapx ; i++)
+    {
+        for(int j = 0 ; j <mapy ; j++)
+        {
+            printf("%d ",fake[i][j]);
+        }
+        printf("\n");
+    } 
 
     return 0;
 }
-
-
 
 
